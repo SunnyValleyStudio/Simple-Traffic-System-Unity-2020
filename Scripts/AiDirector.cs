@@ -178,9 +178,13 @@ namespace SimpleCity.AI
                         }
                     }
                 }
-                if (limitDistance)
+                if (limitDistance && tempDictionary.Count > 2)
                 {
                     var distanceSortedMarkers = tempDictionary.OrderBy(x => Vector3.Distance(x.Key.Position, x.Value)).ToList();
+                    foreach (var item in distanceSortedMarkers)
+                    {
+                        Debug.Log(Vector3.Distance(item.Key.Position, item.Value));
+                    }
                     for (int j = 0; j < 2; j++)
                     {
                         carGraph.AddEdge(distanceSortedMarkers[j].Key.Position, distanceSortedMarkers[j].Value);
