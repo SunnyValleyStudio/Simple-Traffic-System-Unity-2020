@@ -16,6 +16,8 @@ namespace SimpleCity.AI
         AdjacencyGraph pedestrianGraph = new AdjacencyGraph();
         AdjacencyGraph carGraph = new AdjacencyGraph();
 
+        List<Vector3> carPath = new List<Vector3>();
+
         public void SpawnAllAagents()
         {
             foreach (var house in placementManager.GetAllHouses())
@@ -68,10 +70,20 @@ namespace SimpleCity.AI
                 var path = placementManager.GetPathBetween(startRoadPosition, endRoadPosition, true);
                 path.Reverse();
 
-                var car = Instantiate(carPrefab, startRoadPosition, Quaternion.identity);
-                car.GetComponent<CarAI>().SetPath(path.ConvertAll(x => (Vector3)x));
+                if (path.Count == 0 && path.Count>2)
+                    return;
 
-                var carPath = GetCarPath(path, Vector3.zero, Vector3.zero);
+                var startMarkerPosition = placementManager.GetStructureAt(startRoadPosition).GetCarSpawnMarker(path[1]);
+
+                var endMarkerPosition = placementManager.GetStructureAt(endRoadPosition).GetCarEndMarker(path[path.Count-2]);
+
+                carPath = GetCarPath(path, startMarkerPosition.Position, endMarkerPosition.Position);
+
+                if(carPath.Count > 0)
+                {
+                    var car = Instantiate(carPrefab, startMarkerPosition.Position, Quaternion.identity);
+                    car.GetComponent<CarAI>().SetPath(carPath);
+                }
             }
         }
 
@@ -132,7 +144,7 @@ namespace SimpleCity.AI
             carGraph.ClearGraph();
             CreatACarGraph(path);
             Debug.Log(carGraph);
-            return null;
+            return AdjacencyGraph.AStarSearch(carGraph, startPosition, endPosition);
         }
 
         private void CreatACarGraph(List<Vector3Int> path)
@@ -184,7 +196,11 @@ namespace SimpleCity.AI
 
         private void Update()
         {
-            DrawGraph(carGraph);
+            //DrawGraph(carGraph);
+            for (int i = 1; i < carPath.Count; i++)
+            {
+                Debug.DrawLine(carPath[i - 1] + Vector3.up, carPath[i] + Vector3.up, Color.magenta);
+            }
         }
 
         private void DrawGraph(AdjacencyGraph graph)
@@ -198,15 +214,7 @@ namespace SimpleCity.AI
             }
         }
 
-        public void NewMethod(int parameter)
-        {
-            Debug.Log("hello");
-        }
 
-        public void NewMethdTow(string name)
-        {
-            Debug.Log(name);
-        }
     }
 }
 

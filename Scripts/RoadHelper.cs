@@ -18,9 +18,22 @@ namespace SimpleCity.AI
 
         float approximateThresholdCorner = 0.3f;
 
+        [SerializeField]
+        private Marker incomming, outgoing;
+
         public virtual Marker GetpositioForPedestrianToSpwan(Vector3 structurePosition)
         {
             return GetClosestMarkeTo(structurePosition, pedestrianMarkers);
+        }
+
+        public virtual Marker GetPositioForCarToSpawn(Vector3 nextPathPosition)
+        {
+            return outgoing;
+        }
+
+        public virtual Marker GetPositioForCarToEnd(Vector3 previousPathPosition)
+        {
+            return incomming;
         }
 
         private Marker GetClosestMarkeTo(Vector3 structurePosition, List<Marker> pedestrianMarkers, bool isCorner = false)
