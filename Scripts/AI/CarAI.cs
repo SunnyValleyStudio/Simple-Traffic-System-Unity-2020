@@ -15,13 +15,24 @@ public class CarAI : MonoBehaviour
     [SerializeField]
     private Vector3 currentTargetPosition;
 
+    [SerializeField]
+    private GameObject raycastStartingPoint = null;
+    [SerializeField]
+    private float collisionRaycastLength = 0.1f;
+
+    internal bool IsThisLastPathIndex()
+    {
+        return index >= path.Count-1;
+    }
+
     private int index = 0;
 
     private bool stop;
+    private bool collisionStop = false;
 
     public bool Stop
     {
-        get { return stop; }
+        get { return stop || collisionStop; }
         set { stop = value; }
     }
 
@@ -63,6 +74,19 @@ public class CarAI : MonoBehaviour
     {
         CheckIfArrived();
         Drive();
+        CheckForCollisions();
+    }
+
+    private void CheckForCollisions()
+    {
+        if(Physics.Raycast(raycastStartingPoint.transform.position, transform.forward,collisionRaycastLength, 1 << gameObject.layer))
+        {
+            collisionStop = true;
+        }
+        else
+        {
+            collisionStop = false;
+        }
     }
 
     private void Drive()
