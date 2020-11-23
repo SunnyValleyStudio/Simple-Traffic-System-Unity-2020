@@ -2,11 +2,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class SmartRoad : MonoBehaviour
 {
     Queue<CarAI> trafficQueue = new Queue<CarAI>();
     public CarAI currentCar;
+
+    [SerializeField]
+    private bool pedestrianWaiting = false, pedestrianWalking = false;
+
+    [field: SerializeField]
+    public UnityEvent OnPedestrianCanWalk { get; set; }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -25,10 +32,14 @@ public class SmartRoad : MonoBehaviour
     {
         if(currentCar == null)
         {
-            if(trafficQueue.Count > 0)
+            if(trafficQueue.Count > 0 && pedestrianWaiting == false && pedestrianWalking == false)
             {
                 currentCar = trafficQueue.Dequeue();
                 currentCar.Stop = false;
+            }else if(pedestrianWalking || pedestrianWaiting)
+            {
+                OnPedestrianCanWalk?.Invoke();
+                pedestrianWalking = true;
             }
         }
     }
@@ -50,6 +61,20 @@ public class SmartRoad : MonoBehaviour
         if(car == currentCar)
         {
             currentCar = null;
+        }
+    }
+
+
+    public void SetPedestrianFlag(bool val)
+    {
+        if (val)
+        {
+            pedestrianWaiting = true;
+        }
+        else
+        {
+            pedestrianWaiting = false;
+            pedestrianWalking = false;
         }
     }
 }
